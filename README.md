@@ -1,0 +1,1 @@
+Working with HATEOAS in Spring Boot.

@@ -27,17 +27,17 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
-    public Order findOrderById(int id, int orderId) {
-        Customer customer = findById(id);
+    public Order findOrderByCustomerIdAndOrderId(int customerId, int orderId) {
+        Customer customer = findById(customerId);
         for (Order order: customer.getOrders()) {
             if (order.getId() == orderId) {
                 return order;
             }
         }
-        throw new NullPointerException("Order not found by id : " + orderId);
+        throw new NullPointerException("Order not found by id : " + orderId + " for the customer id : " + customerId);
     }
 
-    public List<Order> findOrdersById(int id) {
+    public List<Order> findOrdersByCustomerId(int id) {
         Customer customer = findById(id);
         return customer.getOrders();
     }

@@ -31,7 +31,7 @@ public class CustomerController {
             customer.add(link);
             if (customer.getOrders().size() > 0) {
                 customer.getOrders().forEach(order -> {
-                    Link orderLink = linkTo(methodOn(CustomerController.class).findOrderById(customer.getId(), order.getId())).withSelfRel();
+                    Link orderLink = linkTo(methodOn(OrderController.class).findById(order.getId())).withSelfRel();
                     order.add(orderLink);
                 });
             }
@@ -45,7 +45,7 @@ public class CustomerController {
         Customer customer = customerService.findById(id);
         if (customer.getOrders().size() > 0) {
             customer.getOrders().forEach(order -> {
-                Link orderLink = linkTo(methodOn(CustomerController.class).findOrderById(customer.getId(), order.getId())).withSelfRel();
+                Link orderLink = linkTo(methodOn(OrderController.class).findById(order.getId())).withSelfRel();
                 order.add(orderLink);
             });
         }
@@ -55,20 +55,20 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}/orders")
-    public CollectionModel<Order> findAllOrders(@PathVariable int id) {
-        List<Order> orders = customerService.findOrdersById(id);
+    public CollectionModel<Order> findOrdersByCustomerId(@PathVariable int id) {
+        List<Order> orders = customerService.findOrdersByCustomerId(id);
         for(Order order: orders) {
-            Link link = linkTo(methodOn(CustomerController.class).findOrderById(id, order.getId())).withSelfRel();
+            Link link = linkTo(methodOn(OrderController.class).findById(order.getId())).withSelfRel();
             order.add(link);
         }
-        Link link = linkTo(methodOn(CustomerController.class).findAllOrders(id)).withSelfRel();
+        Link link = linkTo(methodOn(CustomerController.class).findOrdersByCustomerId(id)).withSelfRel();
         return CollectionModel.of(orders, link);
     }
 
     @GetMapping("/{id}/orders/{orderId}")
-    public Order findOrderById(@PathVariable int id, @PathVariable int orderId) {
-        Order order = customerService.findOrderById(id, orderId);
-        Link link = linkTo(methodOn(CustomerController.class).findOrderById(id, orderId)).withSelfRel();
+    public Order findOrderByCustomerIdAndOrderId(@PathVariable int id, @PathVariable int orderId) {
+        Order order = customerService.findOrderByCustomerIdAndOrderId(id, orderId);
+        Link link = linkTo(methodOn(OrderController.class).findById(orderId)).withSelfRel();
         order.add(link);
         return order;
     }

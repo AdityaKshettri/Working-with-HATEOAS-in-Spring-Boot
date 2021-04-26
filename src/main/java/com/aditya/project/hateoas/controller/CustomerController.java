@@ -26,7 +26,7 @@ public class CustomerController {
     @GetMapping
     public CollectionModel<Customer> findAll() {
         List<Customer> customers = customerService.findAll();
-        for(Customer customer: customers) {
+        for (Customer customer : customers) {
             Link link = linkTo(CustomerController.class).slash(customer.getId()).withSelfRel();
             customer.add(link);
             if (customer.getOrders().size() > 0) {
@@ -57,7 +57,7 @@ public class CustomerController {
     @GetMapping("/{id}/orders")
     public CollectionModel<Order> findOrdersByCustomerId(@PathVariable int id) {
         List<Order> orders = customerService.findOrdersByCustomerId(id);
-        for(Order order: orders) {
+        for (Order order : orders) {
             Link link = linkTo(methodOn(OrderController.class).findById(order.getId())).withSelfRel();
             order.add(link);
         }

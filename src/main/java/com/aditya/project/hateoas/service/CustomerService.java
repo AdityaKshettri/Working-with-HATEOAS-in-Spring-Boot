@@ -29,7 +29,7 @@ public class CustomerService {
 
     public Order findOrderByCustomerIdAndOrderId(int customerId, int orderId) {
         Customer customer = findById(customerId);
-        for (Order order: customer.getOrders()) {
+        for (Order order : customer.getOrders()) {
             if (order.getId() == orderId) {
                 return order;
             }

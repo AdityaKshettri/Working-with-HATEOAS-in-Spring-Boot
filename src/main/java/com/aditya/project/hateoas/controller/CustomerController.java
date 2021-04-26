@@ -1,8 +1,10 @@
 package com.aditya.project.hateoas.controller;
 
 import com.aditya.project.hateoas.model.Customer;
+import com.aditya.project.hateoas.model.Order;
 import com.aditya.project.hateoas.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(value = "/customers")
@@ -21,20 +24,52 @@ public class CustomerController {
     private CustomerService customerService;
 
     @GetMapping
-    public List<Customer> findAll() {
+    public CollectionModel<Customer> findAll() {
         List<Customer> customers = customerService.findAll();
         for(Customer customer: customers) {
             Link link = linkTo(CustomerController.class).slash(customer.getId()).withSelfRel();
             customer.add(link);
+            if (customer.getOrders().size() > 0) {
+                customer.getOrders().forEach(order -> {
+                    Link orderLink = linkTo(methodOn(CustomerController.class).findOrderById(customer.getId(), order.getId())).withSelfRel();
+                    order.add(orderLink);
+                });
+            }
         }
-        return customers;
+        Link link = linkTo(CustomerController.class).withSelfRel();
+        return CollectionModel.of(customers, link);
     }
 
     @GetMapping("/{id}")
     public Customer findById(@PathVariable int id) {
         Customer customer = customerService.findById(id);
+        if (customer.getOrders().size() > 0) {
+            customer.getOrders().forEach(order -> {
+                Link orderLink = linkTo(methodOn(CustomerController.class).findOrderById(customer.getId(), order.getId())).withSelfRel();
+                order.add(orderLink);
+            });
+        }
         Link link = linkTo(CustomerController.class).slash(customer.getId()).withSelfRel();
         customer.add(link);
         return customer;
+    }
+
+    @GetMapping("/{id}/orders")
+    public CollectionModel<Order> findAllOrders(@PathVariable int id) {
+        List<Order> orders = customerService.findOrdersById(id);
+        for(Order order: orders) {
+            Link link = linkTo(methodOn(CustomerController.class).findOrderById(id, order.getId())).withSelfRel();
+            order.add(link);
+        }
+        Link link = linkTo(methodOn(CustomerController.class).findAllOrders(id)).withSelfRel();
+        return CollectionModel.of(orders, link);
+    }
+
+    @GetMapping("/{id}/orders/{orderId}")
+    public Order findOrderById(@PathVariable int id, @PathVariable int orderId) {
+        Order order = customerService.findOrderById(id, orderId);
+        Link link = linkTo(methodOn(CustomerController.class).findOrderById(id, orderId)).withSelfRel();
+        order.add(link);
+        return order;
     }
 }
